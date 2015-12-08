@@ -156,6 +156,13 @@ void ImageView::mousePressEvent( QMouseEvent *event )
 {
 	m_pntDownPos = event->pos();
 
+   double dScale = (double)viewport()->width() / (double)m_pimg->width;
+   if ( dScale > ( (double)viewport()->height() / (double)m_pimg->height ) )
+    dScale = (double)viewport()->height() / (double)m_pimg->height;
+
+   QPointF p = m_matrix_inv.map( event->pos() );
+   emit mousePressed( QPoint( p.x() / dScale, p.y() / dScale ) );
+
 	QWidget::mousePressEvent( event );
 }
 
@@ -202,11 +209,15 @@ void ImageView::startAnalysis(int threshold,double ellipse_min,double ellipse_ma
      emit log("finished redering");
  }
 
- void ImageView::emphasisEllipse(std::size_t id){
-     cv::Mat emphasised;
-     cvtColor(analyzed_image.clone(),emphasised,CV_8UC3);
+ void ImageView::emphasisEllipse(int id){
+    cv::Mat emphasised;
+    cv::merge({analyzed_image,analyzed_image,analyzed_image},emphasised);
+    cv::ellipse(emphasised,ellipses[id].rect,cv::Scalar(125,0,0),-1);
 
-     cv::ellipse(emphasised,ellipses[id].rect,cv::Scalar(255,0,0),-1);
+    //cv::imshow("window",emphasised);
+    //cv::waitKey(-1);
 
      m_img = QImage(emphasised.data, emphasised.cols, emphasised.rows, QImage::Format_RGB888);
+     viewport()->update();
+     //emit log("selected " + QString::number(id));
  }

@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 #include "imageview.h"
+#include "ellipse.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,9 +23,12 @@ private slots:
     void scaleImage(int);
     void applyAnalyze();
     void log(QString);
+    void showDiscription(int);
+    void mousePressed(QPoint);
 
 private:
     Ui::MainWindow *ui;
+    bool isEnteringStandard=false;
     //cv::Mat input;
 };
 

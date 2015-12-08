@@ -32,11 +32,15 @@ public:
     void particleAnalysis(int threshold,double ellipse_min,double ellipse_max);
     void renderAnalyzedImage();
 
-    void emphasisEllipse(std::size_t id);
+    const std::vector< Ellipse >& getEllipses(){ return ellipses; }
+
+public slots:
+    void emphasisEllipse(int id);
 
 signals:
-    void log(QString);//{return str;}
-    
+    void log(QString);
+    void mousePressed( QPoint );
+
 private:
   	void paintEvent( QPaintEvent *event );
     cv::Mat input;

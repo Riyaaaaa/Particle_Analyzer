@@ -18,11 +18,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     imageview.cpp \
-    ellipse.cpp
+    ellipse.cpp \
+    modal_dialog.cpp
 
 HEADERS  += mainwindow.h \
     imageview.h \
-    ellipse.h
+    ellipse.h \
+    modal_dialog.h
 
 DEPENDPATH += /usr/local/include
 INCLUDEPATH += /usr/local/include
