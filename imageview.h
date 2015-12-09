@@ -31,21 +31,30 @@ public:
     void startAnalysis(int threshold,double ellipse_min,double ellipse_max);
     void particleAnalysis(int threshold,double ellipse_min,double ellipse_max);
     void renderAnalyzedImage();
+    void deleteEllipse( int id );
+    void setStandard( QPoint,double);
 
     const std::vector< Ellipse >& getEllipses(){ return ellipses; }
 
 public slots:
     void emphasisEllipse(int id);
-
+    void switchImage();
+    
 signals:
     void log(QString);
     void mousePressed( QPoint );
 
 private:
   	void paintEvent( QPaintEvent *event );
+
     cv::Mat input;
     cv::Mat analyzed_image;
+    cv::Mat emphasised;
+
+    double meter_per_pixel=1;
+
     QImage m_img;
+    QImage m_qimg;
     QPoint m_pntDownPos;
     QTransform m_matrix;
     QTransform m_matrix_inv;

@@ -8,7 +8,7 @@ struct Ellipse
 public:
     Ellipse()=default;
     Ellipse(cv::RotatedRect,double,cv::Mat);
-    Ellipse(Ellipse&&)=default;
+    //Ellipse(Ellipse&&) noexcept{};
 
     double area;
     cv::RotatedRect rect;

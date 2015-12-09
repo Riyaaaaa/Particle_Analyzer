@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "modal_dialog.h"
 #include<string>
 #include <iostream>
 #include <QObject>
@@ -11,10 +12,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->scale_slider,SIGNAL(sliderMoved(int)),this,SLOT(scaleImage(int)));
     connect(ui->s_analysis,SIGNAL(clicked()),this,SLOT(applyAnalyze()));
+    connect(ui->delete_button,SIGNAL(clicked()),this,SLOT(deleteEllipse()));
+    connect(ui->scaling,SIGNAL(clicked()),this,SLOT(startSettingStandrd()));
+
     connect(ui->view,SIGNAL(log(QString)),this,SLOT(log(QString)));
+    connect(ui->view,SIGNAL(mousePressed(QPoint)),this,SLOT(mousePressed(QPoint)));
+
+    connect(ui->show,SIGNAL(pressed()),ui->view,SLOT(switchImage()));
+    connect(ui->show,SIGNAL(released()),ui->view,SLOT(switchImage()));
+
     connect(ui->ellipseID,SIGNAL(valueChanged(int)),ui->view,SLOT(emphasisEllipse(int)));
     connect(ui->ellipseID,SIGNAL(valueChanged(int)),this,SLOT(showDiscription(int)));
-    connect(ui->view,SIGNAL(mousePressed(QPoint)),this,SLOT(mousePressed(QPoint));
 
     ui->thresholdBox->setMaximum(255);
     ui->thresholdBox->setMinimum(0);
@@ -29,7 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->ellipseID->setMaximum(0);
 
     ui->delete_button->setEnabled(false);
-    ui->scaling->setEnabled(false);
+    //ui->scaling->setEnabled(false);
+    ui->export_button->setEnabled(false);
+    ui->show->setEnabled(false);
 
     cv::Mat src = cv::imread("/Users/riya/Particle_Analysis/Resource/image.png", CV_LOAD_IMAGE_GRAYSCALE);
     if(src.empty())exit(-1);
@@ -42,7 +52,18 @@ void MainWindow::applyAnalyze(){
     double max = ui->maxBox->value();
 
     ui->view->startAnalysis(threshold,min,max);
-    ui->ellipseID->setMaximum( ui->view->getEllipses().size()-1 );
+    ui->ellipseID->setMinimum( 0 );
+
+    if( ui->view->getEllipses().size() != 0){
+
+        ui->ellipseID->setMaximum( ui->view->getEllipses().size()-1 );
+
+        ui->delete_button-> setEnabled(true);
+        //ui->scaling->       setEnabled(true);
+        ui->export_button-> setEnabled(true);
+        ui->show->          setEnabled(true);
+
+    }
 }
 
 void MainWindow::log(QString str){
@@ -65,9 +86,19 @@ void MainWindow::showDiscription(int id){
 }
 
 void MainWindow::mousePressed(QPoint pos){
+    ui->log->append("pressed point(" + QString::number(pos.x()) + "," + QString::number(pos.y()) + ")");
     if(isEnteringStandard){
-
+        ModalDialog* dialog = new ModalDialog();
+        dialog->init();
+        dialog->exec();
+        ui->view->setStandard(pos,dialog->getValue());
+        isEnteringStandard=false;
     }
+}
+
+void MainWindow::deleteEllipse(){
+    int id = ui->ellipseID->value();
+    ui->view->deleteEllipse(id);
 }
 
 MainWindow::~MainWindow()

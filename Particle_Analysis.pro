@@ -19,12 +19,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     imageview.cpp \
     ellipse.cpp \
-    modal_dialog.cpp
+    modal_dialog.cpp \
+    dialog.cpp
 
 HEADERS  += mainwindow.h \
     imageview.h \
     ellipse.h \
-    modal_dialog.h
+    modal_dialog.h \
+    dialog.h
 
 DEPENDPATH += /usr/local/include
 INCLUDEPATH += /usr/local/include
@@ -46,4 +48,5 @@ DISTFILES += \
     Resource/image.png
 
 FORMS += \
-    Resource/mainwindow.ui
+    Resource/mainwindow.ui \
+    dialog.ui
