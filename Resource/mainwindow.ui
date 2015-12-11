@@ -89,7 +89,7 @@
      <rect>
       <x>10</x>
       <y>350</y>
-      <width>421</width>
+      <width>221</width>
       <height>41</height>
      </rect>
     </property>
@@ -135,51 +135,131 @@
      <rect>
       <x>430</x>
       <y>360</y>
-      <width>113</width>
+      <width>71</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>delete</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="scaling">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>320</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Set Scaling</string>
+     <string>Delete</string>
     </property>
    </widget>
    <widget class="QPushButton" name="export_button">
     <property name="geometry">
      <rect>
-      <x>540</x>
+      <x>500</x>
       <y>360</y>
-      <width>113</width>
-      <height>32</height>
+      <width>71</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
      <string>Export</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="show">
+   <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>10</x>
       <y>320</y>
-      <width>113</width>
+      <width>437</width>
       <height>32</height>
      </rect>
     </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QPushButton" name="show">
+       <property name="text">
+        <string>Show source</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="scaling">
+       <property name="text">
+        <string>Set scaling</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="select_point">
+       <property name="text">
+        <string>( x , y )</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Scale:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="scale">
+       <property name="text">
+        <string>1</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>[μm]/pixel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="destruct">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>360</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
     <property name="text">
-     <string>show source</string>
+     <string>Destruct</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="import_button">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>360</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Import</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="apply_filter">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>350</y>
+      <width>201</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Apply Filter</string>
     </property>
    </widget>
   </widget>

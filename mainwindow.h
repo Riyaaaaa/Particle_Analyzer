@@ -20,6 +20,15 @@ public:
     ~MainWindow();
 
     void setStandard(double standard){ _standard = standard; }
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dropEvent(QDropEvent *e);
+    void loadImage(QString);
+
+public slots:
+    bool init();
+    void export_impl();
+    void import();
+    void export_ellipses(bool isClear);
 
 private slots:
     void scaleImage(int);
@@ -29,9 +38,12 @@ private slots:
     void mousePressed(QPoint);
     void startSettingStandrd(){ isEnteringStandard=true; }
     void deleteEllipse();
+    void destructResult();
 
 private:
     Ui::MainWindow *ui;
+    QString fileLocation;
+    QString fileFullPath;
     bool isEnteringStandard=false;
     double _standard;
     //cv::Mat input;

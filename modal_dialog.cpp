@@ -1,25 +1,7 @@
 #include "modal_dialog.h"
-/*
+
 ModalDialog::ModalDialog(QWidget* parent)
     : QDialog(parent)
-{
-    label = new QLabel("[μm]");
-    button = new QPushButton("set");
-    lineEdit = new QLineEdit;
-
-    connect(button,SIGNAL( clicked() ),this,SLOT( sendValue() ) );
-    connect(lineEdit, SIGNAL( valueChanged(QString) ), this, SLOT(checkValue(QString)));
-
-    button->setEnabled(false);
-
-    QHBoxLayout* layout = new QHBoxLayout;
-    layout->addWidget(lineEdit);
-    layout->addWidget(label);
-    layout->addWidget(button);
-    setLayout(layout);
-}
-*/
-bool ModalDialog::init()
 {
     label = new QLabel("[μm]");
     button = new QPushButton("set");
@@ -35,8 +17,6 @@ bool ModalDialog::init()
     layout->addWidget(label);
     layout->addWidget(button);
     setLayout(layout);
-
-    return true;
 }
 
 void ModalDialog::sendValue(){

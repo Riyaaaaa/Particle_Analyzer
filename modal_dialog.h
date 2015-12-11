@@ -14,11 +14,9 @@ class ModalDialog : public QDialog
 {
     Q_OBJECT
     public:
-    ModalDialog()=default;
-        //explicit ModalDialog(QWidget* parent = 0);
+        explicit ModalDialog(QWidget* parent = 0);
         ~ModalDialog();
         double getValue();
-        bool init();
 
 public slots:
         void sendValue();

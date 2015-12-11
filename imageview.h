@@ -22,6 +22,8 @@ public:
     
     void setImg( QImage &img );
     void setImg( cv::Mat &img );
+
+    bool init();
     
     void controlImagePosition();
     void scaleView( qreal factor );
@@ -30,11 +32,14 @@ public:
 
     void startAnalysis(int threshold,double ellipse_min,double ellipse_max);
     void particleAnalysis(int threshold,double ellipse_min,double ellipse_max);
-    void renderAnalyzedImage();
+    void particleAnalysis(int threshold,double ellipse_min,double ellipse_max,cv::Mat filter);
+    void renderAnalyzedImage(const std::vector<Ellipse>& ellipses);
     void deleteEllipse( int id );
     void setStandard( QPoint,double);
+    double getScale() const{ return meter_per_pixel; };
 
-    const std::vector< Ellipse >& getEllipses(){ return ellipses; }
+    const std::vector< Ellipse >& getEllipses() const{ return _ellipses; }
+    void setEllipses(const std::vector< Ellipse >& ellipses){ _ellipses = ellipses;}
 
 public slots:
     void emphasisEllipse(int id);
@@ -54,12 +59,11 @@ private:
     double meter_per_pixel=1;
 
     QImage m_img;
-    QImage m_qimg;
     QPoint m_pntDownPos;
     QTransform m_matrix;
     QTransform m_matrix_inv;
     QLabel myLabel;
-    std::vector< Ellipse > ellipses;
+    std::vector< Ellipse > _ellipses;
 };
 
 #endif // IMAGEVIEW_H
