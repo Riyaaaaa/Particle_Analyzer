@@ -168,12 +168,6 @@
     </item>
    </layout>
   </widget>
-  <zorder>buttonBox</zorder>
-  <zorder>checkPreset</zorder>
-  <zorder>checkFilter</zorder>
-  <zorder>laplacian</zorder>
-  <zorder>verticalLayoutWidget</zorder>
-  <zorder>verticalLayoutWidget_2</zorder>
  </widget>
  <resources/>
  <connections>

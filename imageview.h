@@ -20,8 +20,9 @@ public:
     ImageView();
     ImageView(QWidget *pWnd);
     
-    void setImg( QImage &img );
-    void setImg( cv::Mat &img );
+    void setImg( const QImage &img );
+    void setImg( const cv::Mat &img );
+    const cv::Mat& getImg(){ return input; }
 
     bool init();
     

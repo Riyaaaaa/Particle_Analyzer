@@ -33,6 +33,7 @@ public slots:
 private slots:
     void scaleImage(int);
     void applyAnalyze();
+    void applyFilter();
     void log(QString);
     void showDiscription(int);
     void mousePressed(QPoint);
@@ -46,6 +47,15 @@ private:
     QString fileFullPath;
     bool isEnteringStandard=false;
     double _standard;
+
+    enum STATE{
+        NO_IMAGE=0,
+        NO_ANALYZE,
+        LOADED,
+        ANALYZED
+    };
+
+    void setState(STATE);
     //cv::Mat input;
 };
 

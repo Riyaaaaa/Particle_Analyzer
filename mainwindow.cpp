@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "modal_dialog.h"
+#include "dialog.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -12,13 +13,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->scale_slider,   SIGNAL(sliderMoved(int)),   this,   SLOT(scaleImage(int)));
-    connect(ui->s_analysis,     SIGNAL(clicked()),          this,   SLOT(applyAnalyze()));
-    connect(ui->delete_button,  SIGNAL(clicked()),          this,   SLOT(deleteEllipse()));
+    connect(ui->scale_slider,   SIGNAL(sliderMoved(int)),   this,   SLOT(scaleImage(int))   );
+
+    connect(ui->s_analysis,     SIGNAL(clicked()),          this,   SLOT(applyAnalyze())    );
+    connect(ui->apply_filter,   SIGNAL(clicked()),          this,   SLOT(applyFilter())     );
+    connect(ui->delete_button,  SIGNAL(clicked()),          this,   SLOT(deleteEllipse())   );
     connect(ui->scaling,        SIGNAL(clicked()),          this,   SLOT(startSettingStandrd()));
-    connect(ui->destruct,       SIGNAL(clicked()),          this,   SLOT(init()));
-    connect(ui->export_button,  SIGNAL(clicked()),          this,   SLOT(export_impl()));
-    connect(ui->import_button,  SIGNAL(clicked()),          this,   SLOT(import()));
+    connect(ui->destruct,       SIGNAL(clicked()),          this,   SLOT(init())            );
+    connect(ui->export_button,  SIGNAL(clicked()),          this,   SLOT(export_impl())     );
+    connect(ui->import_button,  SIGNAL(clicked()),          this,   SLOT(import())          );
 
     connect(ui->view,   SIGNAL(log(QString)),           this,   SLOT(log(QString)));
     connect(ui->view,   SIGNAL(mousePressed(QPoint)),   this,   SLOT(mousePressed(QPoint)));
@@ -50,10 +53,7 @@ void MainWindow::applyAnalyze(){
 
         ui->ellipseID->setMaximum( ui->view->getEllipses().size()-1 );
 
-        ui->delete_button-> setEnabled(true);
-        ui->export_button-> setEnabled(true);
-        ui->show->          setEnabled(true);
-
+        setState(ANALYZED);
     }
 }
 
@@ -113,20 +113,8 @@ void MainWindow::destructResult(){
 }
 
 bool MainWindow::init(){
-    ui->scale_slider->  setValue(50);
-    ui->thresholdBox->  setValue(150);
-    ui->minBox->        setValue(10);
-    ui->maxBox->        setValue(500);
-    ui->ellipseID->     setMinimum(0);
-    ui->ellipseID->     setMaximum(0);
 
-    ui->scale_slider->  setEnabled(false);
-    ui->s_analysis->    setEnabled(false);
-    ui->delete_button-> setEnabled(false);
-    ui->export_button-> setEnabled(false);
-    ui->show->          setEnabled(false);
-    ui->scaling->       setEnabled(false);
-
+    setState(NO_IMAGE);
     ui->view->init();
     return true;
 }
@@ -160,9 +148,7 @@ void MainWindow::loadImage(QString path){
     cv::Mat src = cv::imread(path.toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
     if(!src.empty()){
         ui->view->setImg(src);
-        ui->s_analysis->    setEnabled(true);
-        ui->scaling->       setEnabled(true);
-        ui->scale_slider->  setEnabled(true);
+        setState(LOADED);
     }
     else{
         ui->log->append("Can't load image. \n The format is wrong, or the path is invalid.");
@@ -170,11 +156,13 @@ void MainWindow::loadImage(QString path){
 }
 
 void MainWindow::import(){
+    destructResult();
    QString filename = QFileDialog::getOpenFileName();
 
-   std::fstream filestream( filename.toStdString() );
+   std::ifstream filestream( filename.toStdString() );
    std::vector< Ellipse > ellipses;
    double scale;
+   int rows,cols;
    const char delimiter = ',';
    std::string str;
 
@@ -184,21 +172,27 @@ void MainWindow::import(){
    }
 
    std::string buffer;
-   std::istringstream streambuffer(buffer);
+   std::istringstream streambuffer;
    std::string token;
 
    try{
 
    filestream >> buffer; //read scale
+   streambuffer = std::istringstream(buffer);
    getline(streambuffer, token, delimiter);
    scale = std::stod(token);
-
-   filestream >> buffer; //ignore data name
+   filestream >> buffer;
+   streambuffer = std::istringstream(buffer);
+   getline(streambuffer, token, delimiter);
+    rows = std::stoi(token);
+    getline(streambuffer, token, delimiter);
+    cols = std::stoi(token);
+    filestream >> buffer;
 
    while (!filestream.eof())
    {
        filestream >> buffer;
-
+       streambuffer = std::istringstream(buffer);
        Ellipse ellipse;
 
        if(buffer.empty())break;
@@ -221,10 +215,17 @@ void MainWindow::import(){
    }
    }
    catch(std::exception &e){
-       ui->log->append("file import error");
+       ui->log->append("file import error:" + QString(e.what()));
        return;
    }
    ui->view->setEllipses(ellipses);
+    ui->view->setImg(cv::Mat::zeros(rows,cols,CV_8UC1));
+
+    for(auto& ellipse: ellipses){
+        ellipse.image = cv::Mat::zeros(rows,cols,CV_8UC1);
+        cv::ellipse(ellipse.image,ellipse.rect,cv::Scalar(255,0,0),-1);
+    }
+
    ui->view->renderAnalyzedImage(ellipses);
 }
 
@@ -236,10 +237,10 @@ void MainWindow::export_ellipses(bool isClear){
     const auto& ellipses = ui->view->getEllipses();
     double m_p_p = ui->view->getScale();
     QString basename = QFileInfo(fileFullPath).baseName();
-    double major,minor;
 
     std::ofstream ofs((fileLocation + "/" + basename + ".csv").toStdString());
     ofs << ui->view->getScale() << ",[μm/pixel]" << std::endl;
+    ofs << ui->view->getImg().rows << "," <<ui->view->getImg().cols << ",[rows-cols]" << std::endl;
     ofs << "ParticleID,Location.x,Location.y,Area,width,height,angle" << std::endl;
     for(int i=0; i<ellipses.size(); i++){
         ofs << i << "," << ellipses[i].rect.center.x << "," << ellipses[i].rect.center.y << ","
@@ -247,6 +248,83 @@ void MainWindow::export_ellipses(bool isClear){
             << ellipses[i].rect.boundingRect().height*m_p_p << "," << ellipses[i].rect.angle << std::endl;
     }
     ui->log->append("export as " + (fileLocation + "/" + basename + ".csv"));
+}
+
+void MainWindow::setState(STATE state){
+
+    switch(state){
+    case NO_IMAGE:
+        ui->scale_slider->  setValue(0);
+        ui->thresholdBox->  setValue(150);
+        ui->minBox->        setValue(10);
+        ui->maxBox->        setValue(500);
+        ui->ellipseID->     setMinimum(0);
+        ui->ellipseID->     setMaximum(0);
+
+        ui->scale_slider->  setEnabled(false);
+        ui->apply_filter->  setEnabled(false);
+        ui->s_analysis->    setEnabled(false);
+        ui->delete_button-> setEnabled(false);
+        ui->export_button-> setEnabled(false);
+        ui->show->          setEnabled(false);
+        ui->scaling->       setEnabled(false);
+        break;
+    case LOADED:
+        ui->s_analysis->    setEnabled(true);
+        ui->scaling->       setEnabled(true);
+        ui->scale_slider->  setEnabled(true);
+        ui->apply_filter->  setEnabled(true);
+        break;
+    case ANALYZED:
+        ui->delete_button-> setEnabled(true);
+        ui->export_button-> setEnabled(true);
+        ui->show->          setEnabled(true);
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::applyFilter(){
+
+    Dialog* dialog = new Dialog;
+    const cv::Mat& input = ui->view->getImg();
+    cv::Mat filtered(input.rows,input.rows,input.type());
+
+    if(dialog->exec() != QDialog::Rejected){
+
+    if(dialog->isUsingPreset() ){
+        switch(dialog->getUsePreset()){
+        case Dialog::SOBEL:
+            cv::Sobel(input,filtered,-1,1,1);
+            break;
+        case Dialog::GAUSSIAN:
+            cv::GaussianBlur(input,filtered,cv::Size(0,0),1);
+            break;
+        case Dialog::LAPLACIAN:
+            cv::Laplacian(input,filtered,-1);
+            break;
+        case Dialog::MEDIAN:
+            cv::medianBlur(input,filtered,0);
+            break;
+        case Dialog::BILATERAL:
+            cv::bilateralFilter(input,filtered,-1,1,1);
+            break;
+        case Dialog::SCHARR:
+            cv::Scharr(input,filtered,-1,1,0);
+            break;
+        default:
+            break;
+        }
+    }
+    else {
+        cv::filter2D(input,filtered,-1,dialog->getKernel());
+    }
+
+    ui->view->setImg(filtered);
+    }
+
+
 }
 
 MainWindow::~MainWindow()

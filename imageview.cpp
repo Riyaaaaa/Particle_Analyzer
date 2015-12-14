@@ -21,12 +21,12 @@ void ImageView::paintEvent( QPaintEvent *event ){
     widgetpainter.drawImage( 0, 0, qimg );
 }
 
-void ImageView::setImg( QImage &img ){
+void ImageView::setImg( const QImage &img ){
     m_img = QImage( img );
     viewport()->update();
 }
 
-void ImageView::setImg( cv::Mat& img ){
+void ImageView::setImg(const cv::Mat& img ){
     input = img.clone();
     emphasised = img.clone();
     m_img = QImage(input.data, input.cols, input.rows, QImage::Format_Indexed8);
@@ -125,19 +125,11 @@ void ImageView::particleAnalysis(int threshold,double ellipse_min,double ellipse
         );
         */
 
-    cv::Sobel(input,result,-1,1,0);
-    //cv::filter2D(input,result,-1,KernelData);
-
-    cv::imshow("window",result);
-    cv::waitKey(-1);
-    cv::destroyWindow("window");
-
-        cv::threshold(result, result, threshold, 255, CV_THRESH_BINARY);
+        cv::threshold(input, result, threshold, 255, CV_THRESH_BINARY);
 
         typedef std::vector<cv::Point> outline;
         std::vector<outline> contours;
         std::vector< std::pair< double , outline > > ellipse_vectors;
-
 
 
         emit log("start analysis");
@@ -250,7 +242,7 @@ void ImageView::setStandard(QPoint pos,double length){
     if(region.y + pixels*2 >= emphasised.rows)region.height = emphasised.rows - region.y - 1 ;
 
     cv::Mat show = emphasised(region);
-
+    cv::resize(show,show,cv::Size(input.cols,input.rows));
     cv::imshow("scale standard",show);
     cv::waitKey(-1);
     cv::destroyWindow("scale standard");
@@ -264,13 +256,7 @@ void ImageView::setStandard(QPoint pos,double length){
  void ImageView::renderAnalyzedImage(const std::vector<Ellipse>& ellipses){
 
      emit log("rendering ellipses...");
-
-     std::vector<cv::Mat> mv;
-     cv::Mat merged(input.rows,input.cols,input.type());
-     cv::cvtColor(input,merged,CV_GRAY2BGR);
-
-     cv::split(merged, mv);
-     mv.push_back(cv::Mat::zeros(input.rows,input.cols,CV_8UC1));
+     cv::Mat mv(cv::Mat::zeros(input.rows,input.cols,CV_8UC1));
 
      for(int i=0; i<ellipses.size(); i++){
          /*
@@ -278,18 +264,16 @@ void ImageView::setStandard(QPoint pos,double length){
              mv[2].data[i] = mv[i] + ellipse.data[i] < 255 ? mv[i] + ellipse.data[i] : 255;
          }
          */
-         mv[3] += ellipses[i].image;
-         cv::putText(mv[3], std::to_string(i), ellipses[i].rect.center, cv::FONT_HERSHEY_SIMPLEX , 0.5, cv::Scalar(128,128,128), 1, CV_AA);
+         mv += ellipses[i].image;
+         cv::putText(mv, std::to_string(i), ellipses[i].rect.center, cv::FONT_HERSHEY_SIMPLEX , 0.5, cv::Scalar(128,128,128), 1, CV_AA);
      }
+     cv::imwrite("result.png",mv);
 
-     cv::merge(mv,merged);
-     cv::imwrite("result.png",merged);
-
-     QImage img = QImage(mv[3].data, mv[3].cols, mv[3].rows, QImage::Format_Indexed8);
+     QImage img = QImage(mv.data, mv.cols, mv.rows, QImage::Format_Indexed8);
      img = img.convertToFormat(QImage::Format_RGB32);
 
      m_img = img;
-     analyzed_image = mv[3].clone();
+     analyzed_image = mv.clone();
      if(ellipses.size() != 0)emphasisEllipse(0);
      viewport()->update();
 
