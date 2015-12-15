@@ -52,7 +52,6 @@ void MainWindow::applyAnalyze(){
     if( ui->view->getEllipses().size() != 0){
 
         ui->ellipseID->setMaximum( ui->view->getEllipses().size()-1 );
-
         setState(ANALYZED);
     }
 }
@@ -146,12 +145,22 @@ void MainWindow::dropEvent(QDropEvent *e)
 
 void MainWindow::loadImage(QString path){
     cv::Mat src = cv::imread(path.toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
+    if(_state != ANALYZED){
     if(!src.empty()){
         ui->view->setImg(src);
         setState(LOADED);
     }
     else{
         ui->log->append("Can't load image. \n The format is wrong, or the path is invalid.");
+    }
+    }
+    else {
+        if(!src.empty()){
+            ui->view->setResouce(src);
+        }
+        else{
+            ui->log->append("Can't load image. \n The format is wrong, or the path is invalid.");
+        }
     }
 }
 
@@ -205,9 +214,9 @@ void MainWindow::import(){
         getline(streambuffer, token, delimiter);
         ellipse.area = std::stod(token);
         getline(streambuffer, token, delimiter);
-        ellipse.rect.size.width = std::stod(token);
+        ellipse.rect.size.width = std::stod(token) / scale;
         getline(streambuffer, token, delimiter);
-        ellipse.rect.size.height = std::stod(token);
+        ellipse.rect.size.height = std::stod(token) / scale;
         getline(streambuffer, token, delimiter);
         ellipse.rect.angle = std::stod(token);
 
@@ -219,7 +228,7 @@ void MainWindow::import(){
        return;
    }
    ui->view->setEllipses(ellipses);
-    ui->view->setImg(cv::Mat::zeros(rows,cols,CV_8UC1));
+   ui->view->setImg(cv::Mat::zeros(rows,cols,CV_8UC1));
 
     for(auto& ellipse: ellipses){
         ellipse.image = cv::Mat::zeros(rows,cols,CV_8UC1);
@@ -227,6 +236,11 @@ void MainWindow::import(){
     }
 
    ui->view->renderAnalyzedImage(ellipses);
+   if( ui->view->getEllipses().size() != 0){
+       ui->ellipseID->setMaximum( ui->view->getEllipses().size()-1 );
+       setState(ANALYZED);
+   }
+
 }
 
 void MainWindow::export_impl(){
@@ -251,7 +265,7 @@ void MainWindow::export_ellipses(bool isClear){
 }
 
 void MainWindow::setState(STATE state){
-
+    _state = state;
     switch(state){
     case NO_IMAGE:
         ui->scale_slider->  setValue(0);

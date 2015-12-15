@@ -55,6 +55,8 @@ private:
         ANALYZED
     };
 
+    STATE _state=NO_IMAGE;
+
     void setState(STATE);
     //cv::Mat input;
 };

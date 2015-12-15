@@ -24,6 +24,8 @@ public:
     void setImg( const cv::Mat &img );
     const cv::Mat& getImg(){ return input; }
 
+    void setResource(cv::Mat& img){ input = img.clone(); }
+
     bool init();
     
     void controlImagePosition();

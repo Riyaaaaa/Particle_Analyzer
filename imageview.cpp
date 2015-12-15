@@ -27,7 +27,7 @@ void ImageView::setImg( const QImage &img ){
 }
 
 void ImageView::setImg(const cv::Mat& img ){
-    input = img.clone();
+    setResource(img);
     emphasised = img.clone();
     m_img = QImage(input.data, input.cols, input.rows, QImage::Format_Indexed8);
     m_img = m_img.convertToFormat(QImage::Format_RGB32);
