@@ -156,7 +156,7 @@ void MainWindow::loadImage(QString path){
     }
     else {
         if(!src.empty()){
-            ui->view->setResouce(src);
+            ui->view->setResource(src);
         }
         else{
             ui->log->append("Can't load image. \n The format is wrong, or the path is invalid.");
@@ -214,9 +214,9 @@ void MainWindow::import(){
         getline(streambuffer, token, delimiter);
         ellipse.area = std::stod(token);
         getline(streambuffer, token, delimiter);
-        ellipse.rect.size.width = std::stod(token) / scale;
+        ellipse.rect.size.width = std::stod(token);
         getline(streambuffer, token, delimiter);
-        ellipse.rect.size.height = std::stod(token) / scale;
+        ellipse.rect.size.height = std::stod(token);
         getline(streambuffer, token, delimiter);
         ellipse.rect.angle = std::stod(token);
 
@@ -258,8 +258,8 @@ void MainWindow::export_ellipses(bool isClear){
     ofs << "ParticleID,Location.x,Location.y,Area,width,height,angle" << std::endl;
     for(int i=0; i<ellipses.size(); i++){
         ofs << i << "," << ellipses[i].rect.center.x << "," << ellipses[i].rect.center.y << ","
-            <<  ellipses[i].area << "," << ellipses[i].rect.boundingRect().width*m_p_p << ","
-            << ellipses[i].rect.boundingRect().height*m_p_p << "," << ellipses[i].rect.angle << std::endl;
+            <<  ellipses[i].area << "," << ellipses[i].rect.size.width*m_p_p << ","
+            << ellipses[i].rect.size.height*m_p_p << "," << ellipses[i].rect.angle << std::endl;
     }
     ui->log->append("export as " + (fileLocation + "/" + basename + ".csv"));
 }
