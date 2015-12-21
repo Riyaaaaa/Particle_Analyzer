@@ -7,6 +7,7 @@
 #include <fstream>
 #include <QObject>
 #include <QFileDialog>
+#include <QtCore/qglobal.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -252,7 +253,13 @@ void MainWindow::export_ellipses(bool isClear){
     double m_p_p = ui->view->getScale();
     QString basename = QFileInfo(fileFullPath).baseName();
 
-    std::ofstream ofs((fileLocation + "/" + basename + ".csv").toStdString());
+#ifdef Q_OS_WIN32
+    const char delimiter = '\';
+#else  Q_OS_MAC
+    const char delimiter = '/';
+#endif
+
+    std::ofstream ofs((fileLocation + delimiter + basename + ".csv").toStdString());
     ofs << ui->view->getScale() << ",[μm/pixel]" << std::endl;
     ofs << ui->view->getImg().rows << "," <<ui->view->getImg().cols << ",[rows-cols]" << std::endl;
     ofs << "ParticleID,Location.x,Location.y,Area,width,height,angle" << std::endl;
@@ -261,7 +268,8 @@ void MainWindow::export_ellipses(bool isClear){
             <<  ellipses[i].area << "," << ellipses[i].rect.size.width*m_p_p << ","
             << ellipses[i].rect.size.height*m_p_p << "," << ellipses[i].rect.angle << std::endl;
     }
-    ui->log->append("export as " + (fileLocation + "/" + basename + ".csv"));
+    cv::imwrite(fileLocation.toStdString() + delimiter + basename.toStdString() + ".png",ui->view->getAnalyzedImage());
+    ui->log->append("export as " + (fileLocation + delimiter + basename + ".csv , " + fileLocation + delimiter + basename + ".png"));
 }
 
 void MainWindow::setState(STATE state){

@@ -44,6 +44,8 @@ public:
     const std::vector< Ellipse >& getEllipses() const{ return _ellipses; }
     void setEllipses(const std::vector< Ellipse >& ellipses){ _ellipses = ellipses;}
 
+    const cv::Mat& getAnalyzedImage(){ return analyzed_image; };
+
 public slots:
     void emphasisEllipse(int id);
     void switchImage();

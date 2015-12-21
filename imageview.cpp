@@ -267,7 +267,6 @@ void ImageView::setStandard(QPoint pos,double length){
          mv += ellipses[i].image;
          cv::putText(mv, std::to_string(i), ellipses[i].rect.center, cv::FONT_HERSHEY_SIMPLEX , 0.5, cv::Scalar(128,128,128), 1, CV_AA);
      }
-     cv::imwrite("result.png",mv);
 
      QImage img = QImage(mv.data, mv.cols, mv.rows, QImage::Format_Indexed8);
      img = img.convertToFormat(QImage::Format_RGB32);
